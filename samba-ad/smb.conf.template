@@ -1,0 +1,37 @@
+[global]
+    workgroup = ${SAMBA_DOMAIN}
+    realm = ${SAMBA_REALM}
+    netbios name = ${SAMBA_HOST_NAME}
+    server role = active directory domain controller
+    server services = s3fs, rpc, nbt, wrepl, ldap, cldap, kdc, drepl, winbindd, ntp_signd, kcc, dnsupdate, dns
+    dns forwarder = ${SAMBA_DNS_FORWARDER}
+    
+    log level = 1
+    log file = /var/log/samba/log.%m
+    max log size = 50
+    
+    security = ADS
+    encrypt passwords = yes
+    
+    idmap config * : backend = tdb
+    idmap config * : range = 3000-7999
+    idmap config ${SAMBA_DOMAIN} : backend = ad
+    idmap config ${SAMBA_DOMAIN} : schema_mode = rfc2307
+    idmap config ${SAMBA_DOMAIN} : range = 10000-999999
+    idmap config ${SAMBA_DOMAIN} : unix_nss_info = yes
+    idmap config ${SAMBA_DOMAIN} : unix_primary_group = yes
+    
+    passdb backend = samba
+    domain master = yes
+    local master = yes
+    preferred master = yes
+    os level = 255
+    domain logons = yes
+    
+[netlogon]
+    path = /var/lib/samba/sysvol/${SAMBA_REALM,,}/scripts
+    read only = no
+
+[sysvol]
+    path = /var/lib/samba/sysvol
+    read only = no
